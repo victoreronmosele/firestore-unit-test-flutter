@@ -132,7 +132,8 @@ void main() {
         expect(actualData, expectedData);
       });
 
-      test('setDataOnDocument sets data on a given document', () async {
+      test('setDataOnDocument runs the correct operations in the transaction',
+          () async {
         final FirestoreService firestoreService =
             FirestoreService(firestore: fakeFirebaseFirestore!);
 
@@ -217,6 +218,118 @@ void main() {
         final Map<String, dynamic> expectedData = dataUpdate;
 
         expect(actualData, expectedData);
+      });
+    });
+
+    group('Transaction Operation', () {
+      test('runTransaction runs the correct transaction operation', () async {
+        final FirestoreService firestoreService =
+            FirestoreService(firestore: fakeFirebaseFirestore!);
+
+        const String collectionPath = 'collectionPath';
+        const String documentPathToUpdate = 'documentPathToUpdate';
+        const String documentPathToSetTo = 'documentPathToSetTo';
+        const String documentPathToDelete = 'documentPathToDelete';
+
+        final CollectionReference collectionReference =
+            fakeFirebaseFirestore!.collection(collectionPath);
+
+        final DocumentReference documentReferenceToUpdate =
+            collectionReference.doc(documentPathToUpdate);
+        final DocumentReference documentReferenceToSetTo =
+            collectionReference.doc(documentPathToSetTo);
+        final DocumentReference documentReferenceToDelete =
+            collectionReference.doc(documentPathToDelete);
+
+        documentReferenceToUpdate.set(data);
+        documentReferenceToDelete.set(data);
+
+        const Map<String, dynamic> dataToUpdateWith = {'updated_data': '43'};
+        const Map<String, dynamic> dataToSet = {'data': 44};
+
+        const Map<String, dynamic> expectedUpdatedData = {
+          ...data,
+          ...dataToUpdateWith
+        };
+
+        await firestoreService.runTransaction(
+            dataToUpdate: dataToUpdateWith,
+            dataToSet: dataToSet,
+            collectionPath: collectionPath,
+            documentPathToUpdate: documentPathToUpdate,
+            documentPathToSetTo: documentPathToSetTo,
+            documentPathToDelete: documentPathToDelete);
+
+        final DocumentSnapshot documentSnapshotForUpdate =
+            await documentReferenceToUpdate.get();
+        final DocumentSnapshot documentSnapshotForSet =
+            await documentReferenceToSetTo.get();
+        final DocumentSnapshot documentSnapshotForDelete =
+            await documentReferenceToDelete.get();
+
+        final actualDataFromUpdate = documentSnapshotForUpdate.data();
+        final actualDataFromSet = documentSnapshotForSet.data();
+        final actualDataFromDelete = documentSnapshotForDelete.data();
+
+        expect(actualDataFromUpdate, expectedUpdatedData);
+        expect(actualDataFromSet, dataToSet);
+        expect(actualDataFromDelete, null);
+      });
+    });
+
+    group('Batched Write Operation', () {
+      test('runBatchedWrite runs the correct batched write operation',
+          () async {
+        final FirestoreService firestoreService =
+            FirestoreService(firestore: fakeFirebaseFirestore!);
+        const String collectionPath = 'collectionPath';
+        const String documentPathToUpdate = 'documentPathToUpdate';
+        const String documentPathToSetTo = 'documentPathToSetTo';
+        const String documentPathToDelete = 'documentPathToDelete';
+
+        final CollectionReference collectionReference =
+            fakeFirebaseFirestore!.collection(collectionPath);
+
+        final DocumentReference documentReferenceToUpdate =
+            collectionReference.doc(documentPathToUpdate);
+        final DocumentReference documentReferenceToSetTo =
+            collectionReference.doc(documentPathToSetTo);
+        final DocumentReference documentReferenceToDelete =
+            collectionReference.doc(documentPathToDelete);
+
+        documentReferenceToUpdate.set(data);
+        documentReferenceToDelete.set(data);
+
+        const Map<String, dynamic> dataToUpdateWith = {'updated_data': '43'};
+        const Map<String, dynamic> dataToSet = {'data': 44};
+
+        const Map<String, dynamic> expectedUpdatedData = {
+          ...data,
+          ...dataToUpdateWith
+        };
+
+        await firestoreService.runBatchedWrite(
+            dataToUpdate: dataToUpdateWith,
+            dataToSet: dataToSet,
+            collectionPath: collectionPath,
+            documentPathToUpdate: documentPathToUpdate,
+            documentPathToSetTo: documentPathToSetTo,
+            documentPathToDelete: documentPathToDelete);
+
+        final DocumentSnapshot documentSnapshotForUpdate =
+            await documentReferenceToUpdate.get();
+        final DocumentSnapshot documentSnapshotForSet =
+            await documentReferenceToSetTo.get();
+        final DocumentSnapshot documentSnapshotForDelete =
+            await documentReferenceToDelete.get();
+
+        final actualDataFromUpdate = documentSnapshotForUpdate.data();
+        final actualDataFromSet = documentSnapshotForSet.data();
+        final actualDataFromDelete = documentSnapshotForDelete.data();
+
+        expect(actualDataFromUpdate, expectedUpdatedData);
+        expect(actualDataFromSet, dataToSet);
+        expect(actualDataFromDelete, null);
       });
     });
   });
