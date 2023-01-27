@@ -35,7 +35,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   cloud_firestore: ^3.1.4
-  fake_cloud_firestore: ^1.2.0
 
 dev_dependencies:
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -45,6 +44,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^1.0.0
   test:
+  fake_cloud_firestore: ^1.2.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
